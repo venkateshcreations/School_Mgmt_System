@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduCore SMS — School Management Software</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #F0F4F8;
+    --surface: #FFFFFF;
+    --surface2: #F8FAFC;
+    --border: #E2E8F0;
+    --border2: #CBD5E1;
+    --primary: #2563EB;
+    --primary-light: #EFF6FF;
+    --primary-dark: #1D4ED8;
+    --success: #16A34A;
+    --success-light: #F0FDF4;
+    --warning: #F59E0B;
+    --warning-light: #FFFBEB;
+    --danger: #DC2626;
+    --danger-light: #FEF2F2;
+    --purple: #7C3AED;
+    --purple-light: #F5F3FF;
+    --cyan: #0891B2;
+    --cyan-light: #ECFEFF;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #94A3B8;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
+    --shadow-md: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+    --shadow-lg: 0 20px 25px -5px rgba(0,0,0,0.08), 0 10px 10px -5px rgba(0,0,0,0.03);
+    --radius: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
+    --sidebar-width: 256px;
+    --header-height: 64px;
+    --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ─── LOGIN SCREEN ─── */
+  #login-screen {
+    position: fixed; inset: 0;
+    background: linear-gradient(135deg, #EFF6FF 0%, #F0F9FF 40%, #F5F3FF 100%);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000;
+    transition: opacity 0.4s, transform 0.4s;
+  }
+  #login-screen.hidden { opacity: 0; pointer-events: none; transform: scale(0.98); }
+
+  .login-card {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 48px;
+    width: 440px;
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(37,99,235,0.06);
+    animation: loginIn 0.5s ease;
+  }
+  @keyframes loginIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+  .login-logo {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 32px;
+  }
+  .login-logo-icon {
+    width: 48px; height: 48px;
+    background: linear-gradient(135deg, var(--primary), #7C3AED);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+  }
+  .login-logo-text h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; color: var(--text-primary); }
+  .login-logo-text p { font-size: 12px; color: var(--text-muted); }
+
+  .login-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+  .login-sub { color: var(--text-secondary); font-size: 14px; margin-bottom: 28px; }
+
+  .role-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px; margin-bottom: 24px;
+  }
+  .role-btn {
+    padding: 10px 8px; border-radius: 8px;
+    border: 2px solid var(--border);
+    background: var(--surface2);
+    cursor: pointer; text-align: center;
+    font-size: 12px; font-weight: 500; color: var(--text-secondary);
+    transition: var(--transition);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .role-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+  .role-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); font-weight: 600; }
+  .role-btn .role-icon { font-size: 18px; display: block; margin-bottom: 4px; }
+
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+  .form-input {
+    width: 100%; padding: 11px 14px;
+    border: 2px solid var(--border);
+    border-radius: var(--radius); background: var(--surface);
+    font-size: 14px; font-family: 'DM Sans', sans-serif;
+    color: var(--text-primary); outline: none;
+    transition: var(--transition);
+  }
+  .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+  .login-btn {
+    width: 100%; padding: 13px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white; border: none; border-radius: var(--radius);
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    box-shadow: 0 4px 14px rgba(37,99,235,0.3);
+    transition: var(--transition);
+    margin-top: 4px;
+  }
+  .login-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(37,99,235,0.35); }
+  .login-btn:active { transform: translateY(0); }
+
+  /* ─── APP LAYOUT ─── */
+  #app { display: flex; height: 100vh; overflow: hidden; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    width: var(--sidebar-width);
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    height: 100vh; overflow: hidden;
+    flex-shrink: 0;
+    transition: width var(--transition);
+    position: relative; z-index: 100;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.04);
+  }
+  .sidebar.collapsed { width: 72px; }
+
+  .sidebar-header {
+    height: var(--header-height);
+    display: flex; align-items: center;
+    padding: 0 16px; gap: 10px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .sidebar-logo-icon {
+    width: 36px; height: 36px; min-width: 36px;
+    background: linear-gradient(135deg, var(--primary), #7C3AED);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.25);
+  }
+  .sidebar-logo-text {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 16px; font-weight: 800; color: var(--text-primary);
+    white-space: nowrap; overflow: hidden;
+    transition: opacity var(--transition), width var(--transition);
+  }
+  .sidebar.collapsed .sidebar-logo-text,
+  .sidebar.collapsed .nav-label,
+  .sidebar.collapsed .nav-section-title,
+  .sidebar.collapsed .sidebar-user-info { opacity: 0; width: 0; overflow: hidden; }
+
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 12px 8px; }
+  .sidebar-nav::-webkit-scrollbar { width: 4px; }
+  .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .nav-section { margin-bottom: 6px; }
+  .nav-section-title {
+    font-size: 11px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 6px 10px 4px; white-space: nowrap;
+    transition: opacity var(--transition);
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 10px; border-radius: var(--radius);
+    cursor: pointer; transition: var(--transition);
+    color: var(--text-secondary); font-weight: 500;
+    position: relative; overflow: hidden;
+    white-space: nowrap;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text-primary); }
+  .nav-item.active {
+    background: var(--primary-light); color: var(--primary); font-weight: 600;
+  }
+  .nav-item.active::before {
+    content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    width: 3px; height: 60%; background: var(--primary); border-radius: 0 2px 2px 0;
+  }
+  .nav-icon { font-size: 17px; min-width: 20px; text-align: center; }
+  .nav-label { font-size: 13.5px; transition: opacity var(--transition); }
+  .nav-badge {
+    margin-left: auto; background: var(--danger); color: white;
+    font-size: 10px; font-weight: 700; padding: 2px 6px;
+    border-radius: 10px; min-width: 18px; text-align: center;
+    transition: opacity var(--transition);
+  }
+  .sidebar.collapsed .nav-badge { opacity: 0; }
+
+  .sidebar-footer {
+    padding: 12px 8px; border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .sidebar-user {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px; border-radius: var(--radius);
+    cursor: pointer; transition: var(--transition);
+  }
+  .sidebar-user:hover { background: var(--surface2); }
+  .user-avatar {
+    width: 36px; height: 36px; min-width: 36px;
+    border-radius: 50%; background: linear-gradient(135deg, var(--primary), #7C3AED);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 14px;
+  }
+  .sidebar-user-info { overflow: hidden; }
+  .sidebar-user-name { font-size: 13px; font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sidebar-user-role { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+
+  /* ─── MAIN CONTENT ─── */
+  .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  .header {
+    height: var(--header-height);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 24px; gap: 16px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .header-toggle {
+    width: 36px; height: 36px;
+    border: 1px solid var(--border); border-radius: var(--radius);
+    background: var(--surface2); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; color: var(--text-secondary);
+    transition: var(--transition); flex-shrink: 0;
+  }
+  .header-toggle:hover { background: var(--border); color: var(--text-primary); }
+
+  .header-search {
+    flex: 1; max-width: 360px;
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 8px 14px;
+    transition: var(--transition);
+  }
+  .header-search:focus-within { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(37,99,235,0.08); }
+  .header-search input {
+    border: none; background: transparent; outline: none;
+    font-size: 13.5px; color: var(--text-primary); width: 100%;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .header-search input::placeholder { color: var(--text-muted); }
+
+  .header-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .header-btn {
+    width: 38px; height: 38px; border-radius: var(--radius);
+    border: 1px solid var(--border); background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px; color: var(--text-secondary);
+    transition: var(--transition); position: relative;
+  }
+  .header-btn:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+  .header-btn .notif-dot {
+    position: absolute; top: 6px; right: 6px;
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--danger); border: 1.5px solid white;
+  }
+  .header-breadcrumb {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--text-muted); margin-left: 8px;
+  }
+  .header-breadcrumb .current { color: var(--text-primary); font-weight: 600; }
+
+  /* ─── PAGE CONTENT ─── */
+  .page-content { flex: 1; overflow-y: auto; padding: 24px; }
+  .page-content::-webkit-scrollbar { width: 6px; }
+  .page-content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* ─── PAGE VIEWS ─── */
+  .page-view { display: none; animation: fadeIn 0.3s ease; }
+  .page-view.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ─── PAGE HEADER ─── */
+  .page-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 24px; gap: 16px; flex-wrap: wrap;
+  }
+  .page-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; color: var(--text-primary); }
+  .page-sub { font-size: 13.5px; color: var(--text-secondary); margin-top: 2px; }
+  .page-actions { display: flex; gap: 8px; align-items: center; }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    padding: 9px 18px; border-radius: var(--radius);
+    font-size: 13.5px; font-weight: 600; cursor: pointer;
+    border: none; transition: var(--transition);
+    font-family: 'DM Sans', sans-serif;
+    display: inline-flex; align-items: center; gap: 6px;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--primary); color: white;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.25);
+  }
+  .btn-primary:hover { background: var(--primary-dark); box-shadow: 0 4px 12px rgba(37,99,235,0.35); transform: translateY(-1px); }
+  .btn-outline {
+    background: white; color: var(--text-secondary);
+    border: 1.5px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+  .btn-success { background: var(--success); color: white; }
+  .btn-success:hover { background: #15803D; }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+
+  /* ─── STAT CARDS ─── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px; margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface); border-radius: var(--radius-lg);
+    padding: 20px; border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    position: relative; overflow: hidden;
+  }
+  .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+  .stat-card::before {
+    content: ''; position: absolute;
+    top: 0; right: 0;
+    width: 80px; height: 80px;
+    border-radius: 50%; opacity: 0.06;
+    transform: translate(20px, -20px);
+  }
+  .stat-card.blue::before { background: var(--primary); }
+  .stat-card.green::before { background: var(--success); }
+  .stat-card.amber::before { background: var(--warning); }
+  .stat-card.red::before { background: var(--danger); }
+  .stat-card.purple::before { background: var(--purple); }
+  .stat-card.cyan::before { background: var(--cyan); }
+
+  .stat-icon-wrap {
+    width: 44px; height: 44px; border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 14px;
+  }
+  .stat-card.blue .stat-icon-wrap { background: var(--primary-light); }
+  .stat-card.green .stat-icon-wrap { background: var(--success-light); }
+  .stat-card.amber .stat-icon-wrap { background: var(--warning-light); }
+  .stat-card.red .stat-icon-wrap { background: var(--danger-light); }
+  .stat-card.purple .stat-icon-wrap { background: var(--purple-light); }
+  .stat-card.cyan .stat-icon-wrap { background: var(--cyan-light); }
+
+  .stat-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 26px; font-weight: 800; color: var(--text-primary); line-height: 1; }
+  .stat-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; font-weight: 500; }
+  .stat-change { font-size: 12px; margin-top: 8px; font-weight: 600; display: flex; align-items: center; gap: 3px; }
+  .stat-change.up { color: var(--success); }
+  .stat-change.down { color: var(--danger); }
+
+  /* ─── CARDS ─── */
+  .card {
+    background: var(--surface); border-radius: var(--radius-lg);
+    border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .card-header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700; color: var(--text-primary); }
+  .card-body { padding: 20px; }
+  .card-footer { padding: 12px 20px; background: var(--surface2); border-top: 1px solid var(--border); }
+
+  /* ─── GRID LAYOUTS ─── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .grid-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+  .grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+
+  /* ─── TABLE ─── */
+  .table-wrapper { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    padding: 11px 16px; text-align: left;
+    font-size: 12px; font-weight: 700; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    background: var(--surface2); border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 13px 16px; font-size: 13.5px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+    transition: var(--transition);
+  }
+  tbody tr:hover td { background: var(--surface2); }
+  tbody tr:last-child td { border-bottom: none; }
+
+  /* ─── BADGES ─── */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 12px; font-weight: 600;
+  }
+  .badge-success { background: var(--success-light); color: var(--success); }
+  .badge-warning { background: var(--warning-light); color: #92400E; }
+  .badge-danger { background: var(--danger-light); color: var(--danger); }
+  .badge-primary { background: var(--primary-light); color: var(--primary); }
+  .badge-purple { background: var(--purple-light); color: var(--purple); }
+  .badge-gray { background: var(--surface2); color: var(--text-secondary); border: 1px solid var(--border); }
+
+  /* ─── FORM ELEMENTS ─── */
+  .filter-bar {
+    display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .filter-select, .filter-input {
+    padding: 8px 12px; border: 1.5px solid var(--border);
+    border-radius: var(--radius); background: var(--surface);
+    font-size: 13px; color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif; outline: none;
+    transition: var(--transition);
+  }
+  .filter-select:focus, .filter-input:focus { border-color: var(--primary); }
+  .filter-input { min-width: 200px; }
+
+  /* ─── CHART CONTAINERS ─── */
+  .chart-container { position: relative; }
+  .chart-container canvas { max-height: 260px; }
+
+  /* ─── AVATAR ─── */
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; color: white;
+    flex-shrink: 0;
+  }
+
+  /* ─── PROGRESS ─── */
+  .progress-bar {
+    height: 6px; background: var(--border);
+    border-radius: 10px; overflow: hidden;
+  }
+  .progress-fill { height: 100%; border-radius: 10px; transition: width 1s ease; }
+
+  /* ─── TABS ─── */
+  .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+  .tab-btn {
+    padding: 10px 18px; font-size: 13.5px; font-weight: 500;
+    color: var(--text-secondary); cursor: pointer; border: none;
+    background: transparent; border-bottom: 2px solid transparent;
+    margin-bottom: -1px; transition: var(--transition);
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+  .tab-btn:hover { color: var(--text-primary); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fadeIn 0.2s ease; }
+
+  /* ─── TIMELINE ─── */
+  .timeline { padding-left: 20px; }
+  .timeline-item { position: relative; padding-left: 24px; padding-bottom: 18px; border-left: 2px solid var(--border); }
+  .timeline-item:last-child { border-left-color: transparent; }
+  .timeline-dot { position: absolute; left: -6px; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: var(--primary); border: 2px solid white; box-shadow: 0 0 0 2px var(--primary); }
+  .timeline-content { background: var(--surface2); border-radius: var(--radius); padding: 10px 14px; border: 1px solid var(--border); }
+  .timeline-time { font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+  .timeline-text { font-size: 13px; color: var(--text-primary); }
+
+  /* ─── ALERT ─── */
+  .alert {
+    padding: 12px 16px; border-radius: var(--radius);
+    display: flex; align-items: flex-start; gap: 10px;
+    border: 1px solid; margin-bottom: 12px; font-size: 13.5px;
+  }
+  .alert-info { background: var(--primary-light); border-color: #BFDBFE; color: #1E40AF; }
+  .alert-warning { background: var(--warning-light); border-color: #FDE68A; color: #92400E; }
+  .alert-success { background: var(--success-light); border-color: #BBF7D0; color: #166534; }
+  .alert-danger { background: var(--danger-light); border-color: #FECACA; color: #991B1B; }
+
+  /* ─── ATTENDANCE GRID ─── */
+  .attendance-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(42px, 1fr));
+    gap: 6px;
+  }
+  .att-day {
+    aspect-ratio: 1; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; cursor: pointer;
+    transition: var(--transition);
+  }
+  .att-day.present { background: var(--success-light); color: var(--success); }
+  .att-day.absent { background: var(--danger-light); color: var(--danger); }
+  .att-day.holiday { background: var(--warning-light); color: #92400E; }
+  .att-day.future { background: var(--surface2); color: var(--text-muted); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 1024px) {
+    .grid-2, .grid-1-2, .grid-2-1 { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    .sidebar { position: fixed; z-index: 200; transform: translateX(-100%); }
+    .sidebar.mobile-open { transform: translateX(0); box-shadow: var(--shadow-lg); }
+    .grid-3 { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .page-content { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">🎓</div>
+      <div class="login-logo-text">
+        <h1>EduCore SMS</h1>
+        <p>School Management Software</p>
+      </div>
+    </div>
+    <div class="login-title">Welcome back</div>
+    <p class="login-sub">Select your role and sign in to continue</p>
+
+    <div class="role-grid">
+      <div class="role-btn active" data-role="admin" onclick="selectRole(this)">
+        <span class="role-icon">🏫</span>Admin
+      </div>
+      <div class="role-btn" data-role="principal" onclick="selectRole(this)">
+        <span class="role-icon">👔</span>Principal
+      </div>
+      <div class="role-btn" data-role="teacher" onclick="selectRole(this)">
+        <span class="role-icon">👩‍🏫</span>Teacher
+      </div>
+      <div class="role-btn" data-role="student" onclick="selectRole(this)">
+        <span class="role-icon">🎒</span>Student
+      </div>
+      <div class="role-btn" data-role="parent" onclick="selectRole(this)">
+        <span class="role-icon">👨‍👩‍👧</span>Parent
+      </div>
+      <div class="role-btn" data-role="accountant" onclick="selectRole(this)">
+        <span class="role-icon">💰</span>Accountant
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Email / Staff ID</label>
+      <input class="form-input" type="text" id="login-email" placeholder="admin@greenvalley.edu.in" value="admin@greenvalley.edu.in">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input class="form-input" type="password" id="login-pass" placeholder="••••••••" value="password123">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign in to Dashboard →</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none;">
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo-icon">🎓</div>
+      <span class="sidebar-logo-text">EduCore SMS</span>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav">
+      <!-- Populated by JS -->
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user" onclick="showLogout()">
+        <div class="user-avatar" id="user-avatar">A</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="user-name">Admin User</div>
+          <div class="sidebar-user-role" id="user-role-text">School Admin</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN WRAPPER -->
+  <div class="main-wrapper">
+    <!-- HEADER -->
+    <header class="header">
+      <button class="header-toggle" onclick="toggleSidebar()">☰</button>
+      <div class="header-search">
+        <span style="color:var(--text-muted);font-size:15px;">🔍</span>
+        <input type="text" placeholder="Search students, fees, staff...">
+      </div>
+      <div class="header-breadcrumb">
+        <span>Home</span>
+        <span style="color:var(--border2)">›</span>
+        <span class="current" id="breadcrumb">Dashboard</span>
+      </div>
+      <div class="header-right">
+        <div class="header-btn" title="Notifications">
+          🔔<span class="notif-dot"></span>
+        </div>
+        <div class="header-btn" title="Calendar">📅</div>
+        <div class="header-btn" title="Settings">⚙️</div>
+        <div class="user-avatar" style="cursor:pointer;width:36px;height:36px;font-size:13px;" id="header-avatar">A</div>
+      </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <main class="page-content" id="page-content">
+
+      <!-- DASHBOARD -->
+      <div class="page-view active" id="view-dashboard">
+        <div class="page-header">
+          <div>
+            <div class="page-title">📊 Admin Dashboard</div>
+            <div class="page-sub">Green Valley Public School — Wednesday, 26 Feb 2025</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline btn-sm">📥 Export PDF</button>
+            <button class="btn btn-outline btn-sm">📊 Export Excel</button>
+            <button class="btn btn-primary btn-sm">+ Quick Add</button>
+          </div>
+        </div>
+
+        <div class="alert alert-info">
+          <span>📢</span>
+          <span><strong>Announcement:</strong> Annual Sports Day scheduled for 15th March 2025. All class teachers to submit student entries by 5th March.</span>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card blue">
+            <div class="stat-icon-wrap">👨‍🎓</div>
+            <div class="stat-value">1,847</div>
+            <div class="stat-label">Total Students</div>
+            <div class="stat-change up">↑ 4.2% vs last year</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon-wrap">✅</div>
+            <div class="stat-value">92.4%</div>
+            <div class="stat-label">Attendance Today</div>
+            <div class="stat-change up">↑ 1.8% vs yesterday</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-icon-wrap">💰</div>
+            <div class="stat-value">₹38.4L</div>
+            <div class="stat-label">Fee Collection (Month)</div>
+            <div class="stat-change down">↓ 2.1% vs last month</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-icon-wrap">⚠️</div>
+            <div class="stat-value">73</div>
+            <div class="stat-label">Fee Defaulters</div>
+            <div class="stat-change down">↓ 12 vs last month</div>
+          </div>
+          <div class="stat-card purple">
+            <div class="stat-icon-wrap">👩‍🏫</div>
+            <div class="stat-value">124</div>
+            <div class="stat-label">Active Staff</div>
+            <div class="stat-change up">↑ 3 new joins</div>
+          </div>
+          <div class="stat-card cyan">
+            <div class="stat-icon-wrap">📚</div>
+            <div class="stat-value">89</div>
+            <div class="stat-label">Books Issued Today</div>
+            <div class="stat-change up">↑ 15% vs avg</div>
+          </div>
+        </div>
+
+        <div class="grid-2-1" style="margin-bottom:20px;">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">📈 Revenue vs Expense (2024-25)</span>
+              <select class="filter-select" style="padding:4px 8px;font-size:12px;">
+                <option>Monthly</option><option>Quarterly</option>
+              </select>
+            </div>
+            <div class="card-body">
+              <div class="chart-container"><canvas id="revenueChart"></canvas></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">🏫 Class-wise Strength</span>
+            </div>
+            <div class="card-body">
+              <div class="chart-container"><canvas id="classChart"></canvas></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:20px;">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">📅 Monthly Admissions</span>
+            </div>
+            <div class="card-body">
+              <div class="chart-container"><canvas id="admissionChart"></canvas></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">🕐 Recent Activity</span>
+              <span class="badge badge-primary">Live</span>
+            </div>
+            <div class="card-body" style="max-height:260px;overflow-y:auto;">
+              <div class="timeline">
+                <div class="timeline-item">
+                  <div class="timeline-dot"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-time">10:32 AM</div>
+                    <div class="timeline-text">Fee payment received from <strong>Aryan Sharma (X-A)</strong> — ₹12,500</div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot" style="background:var(--success)"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-time">10:15 AM</div>
+                    <div class="timeline-text">New admission approved: <strong>Priya Nair</strong> — Class 6-B</div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot" style="background:var(--warning)"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-time">9:47 AM</div>
+                    <div class="timeline-text">Leave application submitted by <strong>Ramesh Kumar</strong> (Science Dept.)</div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot" style="background:var(--danger)"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-time">9:20 AM</div>
+                    <div class="timeline-text">Bus Route 3 driver reported late — <strong>24 students affected</strong></div>
+                  </div>
+                </div>
+                <div class="timeline-item">
+                  <div class="timeline-dot" style="background:var(--purple)"></div>
+                  <div class="timeline-content">
+                    <div class="timeline-time">8:55 AM</div>
+                    <div class="timeline-text">Library book overdue for <strong>Sneha Patel (IX-C)</strong> — Fine: ₹25</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Action Cards -->
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-header"><span class="card-title">⚡ Quick Actions</span></div>
+          <div class="card-body">
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn btn-outline" onclick="navigate('admissions')">📝 New Admission</button>
+              <button class="btn btn-outline" onclick="navigate('attendance')">✅ Mark Attendance</button>
+              <button class="btn btn-outline" onclick="navigate('fees')">💳 Collect Fee</button>
+              <button class="btn btn-outline" onclick="navigate('results')">📊 Enter Marks</button>
+              <button class="btn btn-outline" onclick="navigate('communication')">📢 Announcement</button>
+              <button class="btn btn-outline" onclick="navigate('library')">📚 Issue Book</button>
+              <button class="btn btn-outline" onclick="navigate('payroll')">💼 Run Payroll</button>
+              <button class="btn btn-outline" onclick="navigate('reports')">📋 Generate Report</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Performers -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🏆 Top Performing Students (Feb 2025)</span>
+            <button class="btn btn-outline btn-sm">View All</button>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>#</th><th>Student</th><th>Class</th><th>Avg Score</th><th>Attendance</th><th>Status</th></tr></thead>
+              <tbody id="top-students-table">
+                <tr>
+                  <td><strong style="color:var(--warning)">🥇 1</strong></td>
+                  <td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar" style="background:linear-gradient(135deg,#2563EB,#7C3AED)">A</div><div><div style="font-weight:600">Ananya Krishnamurthy</div><div style="font-size:12px;color:var(--text-muted)">Roll: 2401</div></div></div></td>
+                  <td><span class="badge badge-primary">XII-A</span></td>
+                  <td><strong>97.4%</strong></td>
+                  <td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar" style="width:70px;"><div class="progress-fill" style="width:98%;background:var(--success)"></div></div><span style="font-size:12px">98%</span></div></td>
+                  <td><span class="badge badge-success">Excellent</span></td>
+                </tr>
+                <tr>
+                  <td><strong style="color:var(--text-muted)">🥈 2</strong></td>
+                  <td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar" style="background:linear-gradient(135deg,#16A34A,#0891B2)">R</div><div><div style="font-weight:600">Rohan Mehta</div><div style="font-size:12px;color:var(--text-muted)">Roll: 2348</div></div></div></td>
+                  <td><span class="badge badge-primary">XII-B</span></td>
+                  <td><strong>96.8%</strong></td>
+                  <td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar" style="width:70px;"><div class="progress-fill" style="width:95%;background:var(--success)"></div></div><span style="font-size:12px">95%</span></div></td>
+                  <td><span class="badge badge-success">Excellent</span></td>
+                </tr>
+                <tr>
+                  <td><strong style="color:var(--warning)">🥉 3</strong></td>
+                  <td><div style="display:flex;align-items:center;gap:10px;"><div class="avatar" style="background:linear-gradient(135deg,#F59E0B,#DC2626)">S</div><div><div style="font-weight:600">Sneha Venkataraman</div><div style="font-size:12px;color:var(--text-muted)">Roll: 1987</div></div></div></td>
+                  <td><span class="badge badge-primary">XI-A</span></td>
+                  <td><strong>95.2%</strong></td>
+                  <td><div style="display:flex;align-items:center;gap:8px;"><div class="progress-bar" style="width:70px;"><div class="progress-fill" style="width:97%;background:var(--success)"></div></div><span style="font-size:12px">97%</span></div></td>
+                  <td><span class="badge badge-success">Excellent</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUDENTS -->
+      <div class="page-view" id="view-students">
+        <div class="page-header">
+          <div>
+            <div class="page-title">👨‍🎓 Student Management</div>
+            <div class="page-sub">1,847 students enrolled across all classes</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline btn-sm">📥 Import CSV</button>
+            <button class="btn btn-outline btn-sm">📊 Export</button>
+            <button class="btn btn-primary btn-sm" onclick="navigate('admissions')">+ Add Student</button>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+          <div class="stat-card blue"><div class="stat-icon-wrap">👨‍🎓</div><div class="stat-value">1,847</div><div class="stat-label">Total Students</div></div>
+          <div class="stat-card green"><div class="stat-icon-wrap">🧒</div><div class="stat-value">934</div><div class="stat-label">Male Students</div></div>
+          <div class="stat-card purple"><div class="stat-icon-wrap">👧</div><div class="stat-value">913</div><div class="stat-label">Female Students</div></div>
+          <div class="stat-card amber"><div class="stat-icon-wrap">🆕</div><div class="stat-value">68</div><div class="stat-label">New This Year</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">All Students</span>
+            <div style="display:flex;gap:8px;">
+              <input class="filter-input" placeholder="🔍 Search student..." style="width:200px;">
+              <select class="filter-select"><option>All Classes</option><option>Class X</option><option>Class XI</option><option>Class XII</option></select>
+              <select class="filter-select"><option>All Sections</option><option>Section A</option><option>Section B</option></select>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Roll No</th><th>Student Name</th><th>Class</th><th>Parent Name</th><th>Phone</th><th>Fee Status</th><th>Attendance</th><th>Actions</th></tr></thead>
+              <tbody>
+                <tr><td><strong>2401</strong></td><td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar" style="background:linear-gradient(135deg,#2563EB,#7C3AED);width:30px;height:30px;font-size:11px;">A</div><div><div style="font-weight:600">Ananya Krishnamurthy</div><div style="font-size:11px;color:var(--text-muted)">ananya.k@student.edu</div></div></div></td><td><span class="badge badge-primary">XII-A</span></td><td>Ravi Krishnamurthy</td><td>98765-43210</td><td><span class="badge badge-success">Paid</span></td><td><span style="color:var(--success);font-weight:600">98%</span></td><td><div style="display:flex;gap:4px;"><button class="btn btn-outline btn-sm">👁</button><button class="btn btn-outline btn-sm">✏️</button></div></td></tr>
+                <tr><td><strong>2402</strong></td><td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar" style="background:linear-gradient(135deg,#16A34A,#0891B2);width:30px;height:30px;font-size:11px;">R</div><div><div style="font-weight:600">Rohan Mehta</div><div style="font-size:11px;color:var(--text-muted)">rohan.m@student.edu</div></div></div></td><td><span class="badge badge-primary">XII-B</span></td><td>Suresh Mehta</td><td>87654-32109</td><td><span class="badge badge-success">Paid</span></td><td><span style="color:var(--success);font-weight:600">95%</span></td><td><div style="display:flex;gap:4px;"><button class="btn btn-outline btn-sm">👁</button><button class="btn btn-outline btn-sm">✏️</button></div></td></tr>
+                <tr><td><strong>2403</strong></td><td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar" style="background:linear-gradient(135deg,#F59E0B,#DC2626);width:30px;height:30px;font-size:11px;">S</div><div><div style="font-weight:600">Sneha Venkataraman</div><div style="font-size:11px;color:var(--text-muted)">sneha.v@student.edu</div></div></div></td><td><span class="badge badge-primary">XI-A</span></td><td>Venkat Raman</td><td>76543-21098</td><td><span class="badge badge-warning">Partial</span></td><td><span style="color:var(--success);font-weight:600">97%</span></td><td><div style="display:flex;gap:4px;"><button class="btn btn-outline btn-sm">👁</button><button class="btn btn-outline btn-sm">✏️</button></div></td></tr>
+                <tr><td><strong>2404</strong></td><td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar" style="background:linear-gradient(135deg,#7C3AED,#0891B2);width:30px;height:30px;font-size:11px;">A</div><div><div style="font-weight:600">Arjun Patel</div><div style="font-size:11px;color:var(--text-muted)">arjun.p@student.edu</div></div></div></td><td><span class="badge badge-primary">X-C</span></td><td>Dinesh Patel</td><td>65432-10987</td><td><span class="badge badge-danger">Overdue</span></td><td><span style="color:var(--warning);font-weight:600">82%</span></td><td><div style="display:flex;gap:4px;"><button class="btn btn-outline btn-sm">👁</button><button class="btn btn-outline btn-sm">✏️</button></div></td></tr>
+                <tr><td><strong>2405</strong></td><td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar" style="background:linear-gradient(135deg,#0891B2,#16A34A);width:30px;height:30px;font-size:11px;">P</div><div><div style="font-weight:600">Priya Nair</div><div style="font-size:11px;color:var(--text-muted)">priya.n@student.edu</div></div></div></td><td><span class="badge badge-primary">VI-B</span></td><td>Arun Nair</td><td>54321-09876</td><td><span class="badge badge-success">Paid</span></td><td><span style="color:var(--success);font-weight:600">100%</span></td><td><div style="display:flex;gap:4px;"><button class="btn btn-outline btn-sm">👁</button><button class="btn btn-outline btn-sm">✏️</button></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card-footer" style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:13px;color:var(--text-muted)">Showing 5 of 1,847 students</span>
+            <div style="display:flex;gap:4px;">
+              <button class="btn btn-outline btn-sm">← Prev</button>
+              <button class="btn btn-primary btn-sm">1</button>
+              <button class="btn btn-outline btn-sm">2</button>
+              <button class="btn btn-outline btn-sm">3</button>
+              <button class="btn btn-outline btn-sm">Next →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATTENDANCE -->
+      <div class="page-view" id="view-attendance">
+        <div class="page-header">
+          <div>
+            <div class="page-title">✅ Attendance Management</div>
+            <div class="page-sub">Mark and track daily student attendance</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline btn-sm">📊 Monthly Report</button>
+            <button class="btn btn-primary btn-sm">📱 Send SMS to Absentees</button>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:20px;">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Mark Today's Attendance</span>
+              <div style="display:flex;gap:8px;">
+                <select class="filter-select"><option>Class X-A</option><option>Class X-B</option><option>Class XI-A</option></select>
+                <select class="filter-select"><option>Period 1</option><option>Period 2</option><option>All Periods</option></select>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Roll</th><th>Student Name</th><th>Status</th><th>Remark</th></tr></thead>
+                <tbody>
+                  <tr><td>01</td><td>Aarav Sharma</td><td><div style="display:flex;gap:6px;"><button class="btn btn-success btn-sm" style="padding:4px 10px;font-size:11px;">P</button><button class="btn btn-danger btn-sm" style="padding:4px 10px;font-size:11px;">A</button><button class="btn btn-outline btn-sm" style="padding:4px 10px;font-size:11px;color:var(--warning)">L</button></div></td><td><input class="filter-input" placeholder="Remark" style="width:120px;padding:4px 8px;font-size:12px;"></td></tr>
+                  <tr><td>02</td><td>Aditi Gupta</td><td><div style="display:flex;gap:6px;"><button class="btn btn-success btn-sm" style="padding:4px 10px;font-size:11px;">P</button><button class="btn btn-danger btn-sm" style="padding:4px 10px;font-size:11px;background:var(--danger-light);color:var(--danger)">A</button><button class="btn btn-outline btn-sm" style="padding:4px 10px;font-size:11px;color:var(--warning)">L</button></div></td><td><input class="filter-input" placeholder="Remark" style="width:120px;padding:4px 8px;font-size:12px;"></td></tr>
+                  <tr><td>03</td><td>Aditya Verma</td><td><div style="display:flex;gap:6px;"><button class="btn btn-success btn-sm" style="padding:4px 10px;font-size:11px;">P</button><button class="btn btn-danger btn-sm" style="padding:4px 10px;font-size:11px;">A</button><button class="btn btn-outline btn-sm" style="padding:4px 10px;font-size:11px;color:var(--warning)">L</button></div></td><td><input class="filter-input" placeholder="Remark" style="width:120px;padding:4px 8px;font-size:12px;"></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card-footer"><button class="btn btn-primary" style="width:100%">✅ Submit Attendance</button></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">📅 Monthly Attendance — Ananya K. (XII-A)</span></div>
+            <div class="card-body">
+              <div style="margin-bottom:16px;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;">
+                  <span>Present: <strong style="color:var(--success)">22</strong></span>
+                  <span>Absent: <strong style="color:var(--danger)">1</strong></span>
+                  <span>Holiday: <strong style="color:var(--warning)">3</strong></span>
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width:95%;background:var(--success)"></div></div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">95% attendance this month</div>
+              </div>
+              <div class="attendance-grid" id="att-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">📊 Class-wise Attendance Today</span>
+            <span style="font-size:13px;color:var(--text-muted)">26 Feb 2025</span>
+          </div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;">
+              <div style="background:var(--surface2);border-radius:var(--radius);padding:14px;border:1px solid var(--border);">
+                <div style="font-weight:600;margin-bottom:8px;">Class X-A</div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span>Present: 38</span><span>Absent: 4</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:90%;background:var(--primary)"></div></div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:4px;">90.5% present</div>
+              </div>
+              <div style="background:var(--surface2);border-radius:var(--radius);padding:14px;border:1px solid var(--border);">
+                <div style="font-weight:600;margin-bottom:8px;">Class X-B</div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span>Present: 41</span><span>Absent: 1</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:97.6%;background:var(--success)"></div></div>
+                <div style="font-size:12px;color:var(--success);margin-top:4px;">97.6% present</div>
+              </div>
+              <div style="background:var(--surface2);border-radius:var(--radius);padding:14px;border:1px solid var(--border);">
+                <div style="font-weight:600;margin-bottom:8px;">Class XI-A</div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span>Present: 35</span><span>Absent: 7</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:83%;background:var(--warning)"></div></div>
+                <div style="font-size:12px;color:var(--warning);margin-top:4px;">83.3% present</div>
+              </div>
+              <div style="background:var(--surface2);border-radius:var(--radius);padding:14px;border:1px solid var(--border);">
+                <div style="font-weight:600;margin-bottom:8px;">Class XII-A</div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;"><span>Present: 44</span><span>Absent: 2</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:95.7%;background:var(--success)"></div></div>
+                <div style="font-size:12px;color:var(--success);margin-top:4px;">95.7% present</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEES -->
+      <div class="page-view" id="view-fees">
+        <div class="page-header">
+          <div>
+            <div class="page-title">💰 Fee Management</div>
+            <div class="page-sub">Track collections, dues, and payment history</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline btn-sm">📋 Fee Structure</button>
+            <button class="btn btn-primary btn-sm">+ Collect Fee</button>
+          </div>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card green"><div class="stat-icon-wrap">✅</div><div class="stat-value">₹38.4L</div><div class="stat-label">Collected This Month</div></div>
+          <div class="stat-card red"><div class="stat-icon-wrap">⚠️</div><div class="stat-value">₹12.8L</div><div class="stat-label">Outstanding Dues</div></div>
+          <div class="stat-card amber"><div class="stat-icon-wrap">⏰</div><div class="stat-value">73</div><div class="stat-label">Defaulters</div></div>
+          <div class="stat-card blue"><div class="stat-icon-wrap">📊</div><div class="stat-value">75%</div><div class="stat-label">Collection Rate</div></div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:20px;">
+          <div class="card">
+            <div class="card-header"><span class="card-title">📊 Monthly Collection Trend</span></div>
+            <div class="card-body"><div class="chart-container"><canvas id="feeChart"></canvas></div></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">🗂 Fee Structure 2024-25</span></div>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Class</th><th>Tuition</th><th>Transport</th><th>Annual</th><th>Total</th></tr></thead>
+                <tbody>
+                  <tr><td>I–V</td><td>₹4,500</td><td>₹1,200</td><td>₹8,000</td><td><strong>₹13,700</strong></td></tr>
+                  <tr><td>VI–VIII</td><td>₹5,500</td><td>₹1,500</td><td>₹10,000</td><td><strong>₹17,000</strong></td></tr>
+                  <tr><td>IX–X</td><td>₹6,500</td><td>₹1,500</td><td>₹12,000</td><td><strong>₹20,000</strong></td></tr>
+                  <tr><td>XI–XII</td><td>₹8,500</td><td>₹1,800</td><td>₹15,000</td><td><strong>₹25,300</strong></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Recent Transactions</span>
+            <div style="display:flex;gap:8px;">
+              <select class="filter-select"><option>All Months</option><option>Feb 2025</option><option>Jan 2025</option></select>
+              <select class="filter-select"><option>All Status</option><option>Paid</option><option>Pending</option><option>Overdue</option></select>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Receipt No</th><th>Student</th><th>Class</th><th>Amount</th><th>Mode</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr><td><strong>#RCP-0891</strong></td><td>Ananya Krishnamurthy</td><td>XII-A</td><td><strong>₹12,500</strong></td><td><span class="badge badge-primary">UPI</span></td><td>26 Feb 2025</td><td><span class="badge badge-success">Paid</span></td><td><button class="btn btn-outline btn-sm">🖨 Print</button></td></tr>
+                <tr><td><strong>#RCP-0890</strong></td><td>Rohan Mehta</td><td>XII-B</td><td><strong>₹12,500</strong></td><td><span class="badge badge-gray">Cash</span></td><td>25 Feb 2025</td><td><span class="badge badge-success">Paid</span></td><td><button class="btn btn-outline btn-sm">🖨 Print</button></td></tr>
+                <tr><td><strong>#RCP-0888</strong></td><td>Arjun Patel</td><td>X-C</td><td><strong>₹10,000</strong></td><td><span class="badge badge-gray">—</span></td><td>—</td><td><span class="badge badge-danger">Overdue</span></td><td><button class="btn btn-danger btn-sm">📱 Remind</button></td></tr>
+                <tr><td><strong>#RCP-0887</strong></td><td>Sneha Venkataraman</td><td>XI-A</td><td><strong>₹15,300</strong></td><td><span class="badge badge-primary">NEFT</span></td><td>24 Feb 2025</td><td><span class="badge badge-warning">Partial ₹8,000</span></td><td><button class="btn btn-outline btn-sm">🖨 Print</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXAMINATIONS -->
+      <div class="page-view" id="view-results">
+        <div class="page-header">
+          <div>
+            <div class="page-title">📝 Examination & Results</div>
+            <div class="page-sub">Manage exams, marks, grades, and report cards</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline btn-sm">🖨 Print Report Cards</button>
+            <button class="btn btn-primary btn-sm">+ Create Exam</button>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <button class="tab-btn active" onclick="switchTab(this,'tab-exams')">📋 Examinations</button>
+          <button class="tab-btn" onclick="switchTab(this,'tab-marks')">📊 Marks Entry</button>
+          <button class="tab-btn" onclick="switchTab(this,'tab-grades')">🎓 Grades & Report</button>
+          <button class="tab-btn" onclick="switchTab(this,'tab-analytics')">📈 Analytics</button>
+        </div>
+
+        <div class="tab-content active" id="tab-exams">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Exam Schedule 2024-25</span></div>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Exam Name</th><th>Date</th><th>Classes</th><th>Subjects</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Unit Test 1</strong></td><td>10–14 Jan 2025</td><td>I–XII</td><td>All</td><td><span class="badge badge-success">Completed</span></td><td><button class="btn btn-outline btn-sm">View Results</button></td></tr>
+                  <tr><td><strong>Mid-Term Exam</strong></td><td>10–20 Feb 2025</td><td>I–XII</td><td>All</td><td><span class="badge badge-warning">In Progress</span></td><td><button class="btn btn-primary btn-sm">Enter Marks</button></td></tr>
+                  <tr><td><strong>Unit Test 2</strong></td><td>15–19 Mar 2025</td><td>I–XII</td><td>All</td><td><span class="badge badge-gray">Upcoming</span></td><td><button class="btn btn-outline btn-sm">Schedule</button></td></tr>
+                  <tr><td><strong>Annual Exam</strong></td><td>1–15 Apr 2025</td><td>I–XII</td><td>All</td><td><span class="badge badge-gray">Upcoming</span></td><td><button class="btn btn-outline btn-sm">Schedule</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-content" id="tab-marks">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Enter Marks — Mid-Term</span>
+              <div style="display:flex;gap:8px;">
+                <select class="filter-select"><option>Class XII-A</option></select>
+                <select class="filter-select"><option>Mathematics</option><option>Physics</option><option>Chemistry</option></select>
+              </div>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Roll</th><th>Student Name</th><th>Max Marks</th><th>Marks Obtained</th><th>Grade</th></tr></thead>
+                <tbody>
+                  <tr><td>01</td><td>Ananya Krishnamurthy</td><td>100</td><td><input class="filter-input" value="97" style="width:70px;padding:4px 8px;"></td><td><span class="badge badge-success">A1</span></td></tr>
+                  <tr><td>02</td><td>Rohan Mehta</td><td>100</td><td><input class="filter-input" value="89" style="width:70px;padding:4px 8px;"></td><td><span class="badge badge-primary">A2</span></td></tr>
+                  <tr><td>03</td><td>Kiran Singh</td><td>100</td><td><input class="filter-input" value="74" style="width:70px;padding:4px 8px;"></td><td><span class="badge badge-warning">B1</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card-footer"><button class="btn btn-primary">💾 Save Marks</button></div>
+          </div>
+        </div>
+
+        <div class="tab-content" id="tab-grades">
+          <div class="card">
+            <div class="card-header"><span class="card-title">CBSE Grade System</span></div>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Grade</th><th>Marks Range</th><th>Grade Points</th><th>Remarks</th></tr></thead>
+                <tbody>
+                  <tr><td><span class="badge badge-success">A1</span></td><td>91–100</td><td>10.0</td><td>Outstanding</td></tr>
+                  <tr><td><span class="badge badge-primary">A2</span></td><td>81–90</td><td>9.0</td><td>Excellent</td></tr>
+                  <tr><td><span class="badge badge-primary">B1</span></td><td>71–80</td><td>8.0</td><td>Very Good</td></tr>
+                  <tr><td><span class="badge badge-warning">B2</span></td><td>61–70</td><td>7.0</td><td>Good</td></tr>
+                  <tr><td><span class="badge badge-warning">C1</span></td><td>51–60</td><td>6.0</td><td>Average</td></tr>
+                  <tr><td><span class="badge badge-danger">D</span></td><td>33–40</td><td>4.0</td><td>Pass</td></tr>
+                  <tr><td><span class="badge badge-danger">E</span></td><td>0–32</td><td>0</td><td>Fail / Needs Improvement</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-content" id="tab-analytics">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header"><span class="card-title">Class XII-A Performance</span></div>
+              <div class="card-body"><div class="chart-container"><canvas id="performanceChart"></canvas></div></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">Grade Distribution</span></div>
+              <div class="card-body"><div class="chart-container"><canvas id="gradeChart"></canvas></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADMISSIONS -->
+      <div class="page-view" id="view-admissions">
+        <div class="page-header">
+          <div>
+            <div class="page-title">📋 Admission Management</div>
+            <div class="page-sub">Process new student admissions for 2025-26</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline btn-sm">📥 Download Form</button>
+            <button class="btn btn-primary btn-sm">+ New Application</button>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+          <div class="stat-card blue"><div class="stat-icon-wrap">📝</div><div class="stat-value">156</div><div class="stat-label">Applications Received</div></div>
+          <div class="stat-card green"><div class="stat-icon-wrap">✅</div><div class="stat-value">89</div><div class="stat-label">Approved</div></div>
+          <div class="stat-card amber"><div class="stat-icon-wrap">⏳</div><div class="stat-value">42</div><div class="stat-label">Pending Review</div></div>
+          <div class="stat-card red"><div class="stat-icon-wrap">❌</div><div class="stat-value">25</div><div class="stat-label">Rejected/Waitlisted</div></div>
+        </div>
+
+        <div class="grid-1-2">
+          <!-- Mini Form -->
+          <div class="card">
+            <div class="card-header"><span class="card-title">📝 New Application Form</span></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Student Full Name</label>
+                <input class="form-input" placeholder="Enter full name as per birth certificate">
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">Date of Birth</label>
+                  <input class="form-input" type="date">
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                  <label class="form-label">Gender</label>
+                  <select class="form-input"><option>Male</option><option>Female</option><option>Other</option></select>
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Seeking Admission in Class</label>
+                <select class="form-input"><option>Class I</option><option>Class VI</option><option>Class IX</option><option>Class XI</option></select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Parent/Guardian Name</label>
+                <input class="form-input" placeholder="Father / Mother / Guardian name">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Mobile Number</label>
+                <input class="form-input" placeholder="+91 XXXXX XXXXX">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Previous School</label>
+                <input class="form-input" placeholder="Last school attended">
+              </div>
+              <button class="btn btn-primary" style="width:100%;margin-top:4px;">📤 Submit Application</button>
+            </div>
+          </div>
+
+          <!-- Application List -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Recent Applications</span>
+              <select class="filter-select"><option>All Status</option><option>Pending</option><option>Approved</option></select>
+            </div>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>App #</th><th>Student Name</th><th>Class</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+                <tbody>
+                  <tr><td>#A-156</td><td><strong>Ishaan Gupta</strong></td><td>Class VI</td><td>25 Feb</td><td><span class="badge badge-warning">Pending</span></td><td><div style="display:flex;gap:4px;"><button class="btn btn-success btn-sm" style="font-size:11px;padding:4px 8px;">✓</button><button class="btn btn-danger btn-sm" style="font-size:11px;padding:4px 8px;">✗</button></div></td></tr>
+                  <tr><td>#A-155</td><td><strong>Diya Malhotra</strong></td><td>Class I</td><td>24 Feb</td><td><span class="badge badge-success">Approved</span></td><td><button class="btn btn-outline btn-sm">📋 View</button></td></tr>
+                  <tr><td>#A-154</td><td><strong>Kabir Rawal</strong></td><td>Class IX</td><td>23 Feb</td><td><span class="badge badge-warning">Documents Pending</span></td><td><button class="btn btn-outline btn-sm">📋 View</button></td></tr>
+                  <tr><td>#A-153</td><td><strong>Tanvi Shah</strong></td><td>Class XI-Sci</td><td>22 Feb</td><td><span class="badge badge-success">Approved</span></td><td><button class="btn btn-outline btn-sm">📋 View</button></td></tr>
+                  <tr><td>#A-152</td><td><strong>Harsh Mishra</strong></td><td>Class I</td><td>21 Feb</td><td><span class="badge badge-danger">Waitlisted</span></td><td><button class="btn btn-outline btn-sm">📋 View</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAFF -->
+      <div class="page-view" id="view-staff">
+        <div class="page-header">
+          <div>
+            <div class="page-title">👩‍🏫 Staff Management</div>
+            <div class="page-sub">Manage teaching and non-teaching staff</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary btn-sm">+ Add Staff</button>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+          <div class="stat-card blue"><div class="stat-icon-wrap">👩‍🏫</div><div class="stat-value">87</div><div class="stat-label">Teaching Staff</div></div>
+          <div class="stat-card purple"><div class="stat-icon-wrap">👤</div><div class="stat-value">37</div><div class="stat-label">Non-Teaching</div></div>
+          <div class="stat-card green"><div class="stat-icon-wrap">✅</div><div class="stat-value">118</div><div class="stat-label">Present Today</div></div>
+          <div class="stat-card amber"><div class="stat-icon-wrap">📋</div><div class="stat-value">6</div><div class="stat-label">On Leave</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">Staff Directory</span>
+            <div style="display:flex;gap:8px;">
+              <input class="filter-input" placeholder="🔍 Search staff...">
+              <select class="filter-select"><option>All Dept.</option><option>Science</option><option>Math</option><option>Humanities</option><option>Admin</option></select>
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>ID</th><th>Name</th><th>Department</th><th>Designation</th><th>Phone</th><th>Join Date</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody>
+                <tr><td><strong>S001</strong></td><td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar" style="background:linear-gradient(135deg,#2563EB,#0891B2);width:30px;height:30px;font-size:11px;">P</div><div><div style="font-weight:600">Dr. Priya Sharma</div><div style="font-size:11px;color:var(--text-muted)">priya.s@greenvalley.edu</div></div></div></td><td>Science</td><td>HOD Physics</td><td>98765-00001</td><td>2018-06-01</td><td><span class="badge badge-success">Active</span></td><td><div style="display:flex;gap:4px;"><button class="btn btn-outline btn-sm">👁</button><button class="btn btn-outline btn-sm">✏️</button></div></td></tr>
+                <tr><td><strong>S002</strong></td><td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar" style="background:linear-gradient(135deg,#16A34A,#F59E0B);width:30px;height:30px;font-size:11px;">R</div><div><div style="font-weight:600">Ramesh Kumar</div><div style="font-size:11px;color:var(--text-muted)">ramesh.k@greenvalley.edu</div></div></div></td><td>Mathematics</td><td>Senior Teacher</td><td>87654-00002</td><td>2015-07-15</td><td><span class="badge badge-warning">On Leave</span></td><td><div style="display:flex;gap:4px;"><button class="btn btn-outline btn-sm">👁</button><button class="btn btn-outline btn-sm">✏️</button></div></td></tr>
+                <tr><td><strong>S003</strong></td><td><div style="display:flex;align-items:center;gap:8px;"><div class="avatar" style="background:linear-gradient(135deg,#7C3AED,#DC2626);width:30px;height:30px;font-size:11px;">M</div><div><div style="font-weight:600">Meera Nambiar</div><div style="font-size:11px;color:var(--text-muted)">meera.n@greenvalley.edu</div></div></div></td><td>English</td><td>Teacher</td><td>76543-00003</td><td>2020-03-01</td><td><span class="badge badge-success">Active</span></td><td><div style="display:flex;gap:4px;"><button class="btn btn-outline btn-sm">👁</button><button class="btn btn-outline btn-sm">✏️</button></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAYROLL -->
+      <div class="page-view" id="view-payroll">
+        <div class="page-header">
+          <div>
+            <div class="page-title">💼 Payroll & HR</div>
+            <div class="page-sub">Manage staff salaries, payslips, and leave</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline btn-sm">📊 Download Report</button>
+            <button class="btn btn-primary btn-sm">▶ Run Payroll (Feb 2025)</button>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+          <div class="stat-card blue"><div class="stat-icon-wrap">💵</div><div class="stat-value">₹28.4L</div><div class="stat-label">Total Payroll</div></div>
+          <div class="stat-card green"><div class="stat-icon-wrap">✅</div><div class="stat-value">118</div><div class="stat-label">Salaries Processed</div></div>
+          <div class="stat-card amber"><div class="stat-icon-wrap">⏳</div><div class="stat-value">6</div><div class="stat-label">Pending</div></div>
+          <div class="stat-card purple"><div class="stat-icon-wrap">📋</div><div class="stat-value">14</div><div class="stat-label">Leave Requests</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Payroll Summary — February 2025</span></div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Staff ID</th><th>Name</th><th>Basic</th><th>HRA</th><th>DA</th><th>Deductions</th><th>Net Pay</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr><td>S001</td><td>Dr. Priya Sharma</td><td>₹62,000</td><td>₹18,600</td><td>₹9,300</td><td>₹8,240</td><td><strong>₹81,660</strong></td><td><span class="badge badge-success">Processed</span></td><td><button class="btn btn-outline btn-sm">🖨 Payslip</button></td></tr>
+                <tr><td>S002</td><td>Ramesh Kumar</td><td>₹55,000</td><td>₹16,500</td><td>₹8,250</td><td>₹7,120</td><td><strong>₹72,630</strong></td><td><span class="badge badge-success">Processed</span></td><td><button class="btn btn-outline btn-sm">🖨 Payslip</button></td></tr>
+                <tr><td>S003</td><td>Meera Nambiar</td><td>₹42,000</td><td>₹12,600</td><td>₹6,300</td><td>₹5,480</td><td><strong>₹55,420</strong></td><td><span class="badge badge-warning">Pending</span></td><td><button class="btn btn-primary btn-sm">Process</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIBRARY -->
+      <div class="page-view" id="view-library">
+        <div class="page-header">
+          <div>
+            <div class="page-title">📚 Library Management</div>
+            <div class="page-sub">Track books, issues, returns, and fines</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline btn-sm">+ Add Books</button>
+            <button class="btn btn-primary btn-sm">📖 Issue Book</button>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+          <div class="stat-card blue"><div class="stat-icon-wrap">📚</div><div class="stat-value">8,420</div><div class="stat-label">Total Books</div></div>
+          <div class="stat-card amber"><div class="stat-icon-wrap">📖</div><div class="stat-value">341</div><div class="stat-label">Currently Issued</div></div>
+          <div class="stat-card red"><div class="stat-icon-wrap">⚠️</div><div class="stat-value">27</div><div class="stat-label">Overdue Books</div></div>
+          <div class="stat-card green"><div class="stat-icon-wrap">💰</div><div class="stat-value">₹2,450</div><div class="stat-label">Fines Collected</div></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Recently Issued Books</span></div>
+            <div class="table-wrapper">
+              <table>
+                <thead><tr><th>Book Title</th><th>Student</th><th>Issue Date</th><th>Due Date</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>Wings of Fire</strong><div style="font-size:11px;color:var(--text-muted)">ISBN: 978-81-237-3930-4</div></td><td>Ananya K.</td><td>20 Feb</td><td>5 Mar</td><td><span class="badge badge-success">On Time</span></td></tr>
+                  <tr><td><strong>Discovery of India</strong><div style="font-size:11px;color:var(--text-muted)">ISBN: 978-0-14-303335-8</div></td><td>Rohan M.</td><td>10 Feb</td><td>24 Feb</td><td><span class="badge badge-danger">Overdue</span></td></tr>
+                  <tr><td><strong>Maths NCERT XII</strong><div style="font-size:11px;color:var(--text-muted)">ISBN: 978-81-7450-742-1</div></td><td>Arjun P.</td><td>22 Feb</td><td>8 Mar</td><td><span class="badge badge-success">On Time</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><span class="card-title">Book Categories</span></div>
+            <div class="card-body"><div class="chart-container"><canvas id="libraryChart"></canvas></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRANSPORT -->
+      <div class="page-view" id="view-transport">
+        <div class="page-header">
+          <div>
+            <div class="page-title">🚌 Transport Management</div>
+            <div class="page-sub">Manage routes, buses, and student allocation</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary btn-sm">+ Add Route</button>
+          </div>
+        </div>
+
+        <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px;">
+          <div class="stat-card blue"><div class="stat-icon-wrap">🚌</div><div class="stat-value">12</div><div class="stat-label">Total Buses</div></div>
+          <div class="stat-card green"><div class="stat-icon-wrap">🛣️</div><div class="stat-value">8</div><div class="stat-label">Active Routes</div></div>
+          <div class="stat-card purple"><div class="stat-icon-wrap">👨‍🎓</div><div class="stat-value">624</div><div class="stat-label">Students Using Transport</div></div>
+          <div class="stat-card amber"><div class="stat-icon-wrap">👨‍✈️</div><div class="stat-value">12</div><div class="stat-label">Drivers</div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><span class="card-title">Route Overview</span></div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr><th>Route No</th><th>Route Name</th><th>Bus No</th><th>Driver</th><th>Students</th><th>Distance</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr><td><strong>RT-01</strong></td><td>Koramangala – School</td><td>KA-05-F-2341</td><td>Suresh D.</td><td>52</td><td>8 km</td><td><span class="badge badge-success">On Route</span></td><td><button class="btn btn-outline btn-sm">📍 Track</button></td></tr>
+                <tr><td><strong>RT-02</strong></td><td>Whitefield – School</td><td>KA-05-G-1182</td><td>Rajan P.</td><td>61</td><td>14 km</td><td><span class="badge badge-success">On Route</span></td><td><button class="btn btn-outline btn-sm">📍 Track</button></td></tr>
+                <tr><td><strong>RT-03</strong></td><td>BTM Layout – School</td><td>KA-05-H-4421</td><td>Murugan K.</td><td>48</td><td>6 km</td><td><span class="badge badge-danger">Delayed 15 min</span></td><td><button class="btn btn-danger btn-sm">⚠ Alert</button></td></tr>
+                <tr><td><strong>RT-04</strong></td><td>Electronic City – School</td><td>KA-05-J-8831</td><td>Naresh V.</td><td>55</td><td>18 km</td><td><span class="badge badge-success">On Route</span></td><td><button class="btn btn-outline btn-sm">📍 Track</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMMUNICATION -->
+      <div class="page-view" id="view-communication">
+        <div class="page-header">
+          <div>
+            <div class="page-title">📢 Communication Center</div>
+            <div class="page-sub">Announcements, notifications, and messaging</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-primary btn-sm">+ New Announcement</button>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><span class="card-title">📣 Recent Announcements</span></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+              <div style="background:var(--primary-light);border-radius:var(--radius);padding:14px;border:1px solid #BFDBFE;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><strong>Sports Day — 15th March</strong><span class="badge badge-primary">All</span></div>
+                <div style="font-size:13px;color:var(--text-secondary);">Annual Sports Day scheduled for 15th March 2025. All class teachers to submit student entries by 5th March.</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">26 Feb 2025 — Admin</div>
+              </div>
+              <div style="background:var(--warning-light);border-radius:var(--radius);padding:14px;border:1px solid #FDE68A;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><strong>Mid-Term Results Out</strong><span class="badge badge-warning">Parents</span></div>
+                <div style="font-size:13px;color:var(--text-secondary);">Mid-term examination results are now available on the portal. Parents may log in to view their ward's performance.</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">24 Feb 2025 — Exam Dept.</div>
+              </div>
+              <div style="background:var(--success-light);border-radius:var(--radius);padding:14px;border:1px solid #BBF7D0;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><strong>Holiday — Holi</strong><span class="badge badge-success">All</span></div>
+                <div style="font-size:13px;color:var(--text-secondary);">School will remain closed on 14th March 2025 (Friday) on account of Holi.</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:6px;">22 Feb 2025 — Principal</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><span class="card-title">📱 Send Notification</span></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Target Audience</label>
+                <select class="form-input">
+                  <option>All Students & Parents</option>
+                  <option>Class-wise</option>
+                  <option>Specific Students</option>
+                  <option>All Staff</option>
+                  <option>Fee Defaulters</option>
+                </select>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Channel</label>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" checked> SMS</label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" checked> Email</label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox"> WhatsApp</label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;"><input type="checkbox" checked> Push</label>
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Subject</label>
+                <input class="form-input" placeholder="Message subject...">
+              </div>
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label">Message</label>
+                <textarea class="form-input" rows="4" style="resize:vertical;" placeholder="Type your message here..."></textarea>
+              </div>
+              <button class="btn btn-primary" style="width:100%;">📤 Send Notification</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- REPORTS -->
+      <div class="page-view" id="view-reports">
+        <div class="page-header">
+          <div>
+            <div class="page-title">📊 Reports & Analytics</div>
+            <div class="page-sub">Generate comprehensive school reports</div>
+          </div>
+          <div class="page-actions">
+            <button class="btn btn-outline btn-sm">📅 Schedule Report</button>
+            <button class="btn btn-primary btn-sm">⬇ Download All</button>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+          <div class="card" style="cursor:pointer;" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='var(--shadow-sm)'">
+            <div class="card-body" style="text-align:center;padding:28px 20px;">
+              <div style="font-size:36px;margin-bottom:12px;">📋</div>
+              <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px;">Student Report</div>
+              <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Enrollment, demographics, class-wise data</div>
+              <div style="display:flex;gap:8px;justify-content:center;">
+                <button class="btn btn-outline btn-sm">📄 PDF</button>
+                <button class="btn btn-outline btn-sm">📊 Excel</button>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer;" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='var(--shadow-sm)'">
+            <div class="card-body" style="text-align:center;padding:28px 20px;">
+              <div style="font-size:36px;margin-bottom:12px;">💰</div>
+              <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px;">Financial Report</div>
+              <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Fee collections, expenses, payroll summary</div>
+              <div style="display:flex;gap:8px;justify-content:center;">
+                <button class="btn btn-outline btn-sm">📄 PDF</button>
+                <button class="btn btn-outline btn-sm">📊 Excel</button>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer;" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='var(--shadow-sm)'">
+            <div class="card-body" style="text-align:center;padding:28px 20px;">
+              <div style="font-size:36px;margin-bottom:12px;">✅</div>
+              <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px;">Attendance Report</div>
+              <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Daily, monthly, class-wise attendance data</div>
+              <div style="display:flex;gap:8px;justify-content:center;">
+                <button class="btn btn-outline btn-sm">📄 PDF</button>
+                <button class="btn btn-outline btn-sm">📊 Excel</button>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer;" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='var(--shadow-sm)'">
+            <div class="card-body" style="text-align:center;padding:28px 20px;">
+              <div style="font-size:36px;margin-bottom:12px;">📝</div>
+              <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px;">Exam / Result Report</div>
+              <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Marks, grades, toppers, fail analysis</div>
+              <div style="display:flex;gap:8px;justify-content:center;">
+                <button class="btn btn-outline btn-sm">📄 PDF</button>
+                <button class="btn btn-outline btn-sm">📊 Excel</button>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer;" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='var(--shadow-sm)'">
+            <div class="card-body" style="text-align:center;padding:28px 20px;">
+              <div style="font-size:36px;margin-bottom:12px;">📚</div>
+              <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px;">Library Report</div>
+              <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Books issued, overdue, fines, inventory</div>
+              <div style="display:flex;gap:8px;justify-content:center;">
+                <button class="btn btn-outline btn-sm">📄 PDF</button>
+                <button class="btn btn-outline btn-sm">📊 Excel</button>
+              </div>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer;" onmouseover="this.style.boxShadow='var(--shadow-md)'" onmouseout="this.style.boxShadow='var(--shadow-sm)'">
+            <div class="card-body" style="text-align:center;padding:28px 20px;">
+              <div style="font-size:36px;margin-bottom:12px;">🚌</div>
+              <div style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;margin-bottom:6px;">Transport Report</div>
+              <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;">Routes, buses, student allocation, fees</div>
+              <div style="display:flex;gap:8px;justify-content:center;">
+                <button class="btn btn-outline btn-sm">📄 PDF</button>
+                <button class="btn btn-outline btn-sm">📊 Excel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+// ─── NAVIGATION ───
+const navConfig = [
+  { section: 'Main', items: [
+    { id: 'dashboard', icon: '📊', label: 'Dashboard' },
+  ]},
+  { section: 'Academics', items: [
+    { id: 'students', icon: '👨‍🎓', label: 'Students', badge: '' },
+    { id: 'attendance', icon: '✅', label: 'Attendance' },
+    { id: 'results', icon: '📝', label: 'Examinations' },
+    { id: 'admissions', icon: '📋', label: 'Admissions', badge: '42' },
+  ]},
+  { section: 'Administration', items: [
+    { id: 'staff', icon: '👩‍🏫', label: 'Staff' },
+    { id: 'fees', icon: '💰', label: 'Fee Management', badge: '73' },
+    { id: 'payroll', icon: '💼', label: 'Payroll & HR' },
+    { id: 'communication', icon: '📢', label: 'Communication' },
+  ]},
+  { section: 'Services', items: [
+    { id: 'library', icon: '📚', label: 'Library' },
+    { id: 'transport', icon: '🚌', label: 'Transport' },
+    { id: 'reports', icon: '📈', label: 'Reports' },
+  ]},
+];
+
+const pageTitles = {
+  dashboard: 'Dashboard', students: 'Students', attendance: 'Attendance',
+  results: 'Examinations', admissions: 'Admissions', staff: 'Staff',
+  fees: 'Fee Management', payroll: 'Payroll', communication: 'Communication',
+  library: 'Library', transport: 'Transport', reports: 'Reports'
+};
+
+let currentRole = 'admin';
+let currentPage = 'dashboard';
+
+function selectRole(el) {
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  currentRole = el.dataset.role;
+}
+
+function doLogin() {
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app').style.display = 'flex';
+  setupUser();
+  buildNav();
+  navigate('dashboard');
+  setTimeout(initCharts, 100);
+}
+
+function setupUser() {
+  const roleMap = {
+    admin: { name: 'Admin User', initial: 'A', color: 'linear-gradient(135deg,#2563EB,#7C3AED)' },
+    principal: { name: 'Dr. K. Sharma', initial: 'K', color: 'linear-gradient(135deg,#0891B2,#7C3AED)' },
+    teacher: { name: 'Mrs. Priya R.', initial: 'P', color: 'linear-gradient(135deg,#16A34A,#0891B2)' },
+    student: { name: 'Ananya K.', initial: 'A', color: 'linear-gradient(135deg,#F59E0B,#DC2626)' },
+    parent: { name: 'Mr. Ravi K.', initial: 'R', color: 'linear-gradient(135deg,#7C3AED,#2563EB)' },
+    accountant: { name: 'Smt. Leela M.', initial: 'L', color: 'linear-gradient(135deg,#16A34A,#F59E0B)' },
+  };
+  const u = roleMap[currentRole] || roleMap.admin;
+  document.getElementById('user-name').textContent = u.name;
+  document.getElementById('user-role-text').textContent = currentRole.charAt(0).toUpperCase() + currentRole.slice(1);
+  document.getElementById('user-avatar').textContent = u.initial;
+  document.getElementById('user-avatar').style.background = u.color;
+  document.getElementById('header-avatar').textContent = u.initial;
+  document.getElementById('header-avatar').style.background = u.color;
+}
+
+function buildNav() {
+  const nav = document.getElementById('sidebar-nav');
+  nav.innerHTML = '';
+  navConfig.forEach(section => {
+    const sec = document.createElement('div');
+    sec.className = 'nav-section';
+    sec.innerHTML = `<div class="nav-section-title">${section.section}</div>`;
+    section.items.forEach(item => {
+      const el = document.createElement('div');
+      el.className = 'nav-item';
+      el.dataset.page = item.id;
+      el.onclick = () => navigate(item.id);
+      el.innerHTML = `<span class="nav-icon">${item.icon}</span><span class="nav-label">${item.label}</span>${item.badge ? `<span class="nav-badge">${item.badge}</span>` : ''}`;
+      sec.appendChild(el);
+    });
+    nav.appendChild(sec);
+  });
+}
+
+function navigate(page) {
+  // Update nav
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.page === page);
+  });
+  // Update views
+  document.querySelectorAll('.page-view').forEach(el => el.classList.remove('active'));
+  const v = document.getElementById('view-' + page);
+  if (v) v.classList.add('active');
+  // Breadcrumb
+  document.getElementById('breadcrumb').textContent = pageTitles[page] || page;
+  currentPage = page;
+  // Init charts when visiting specific pages
+  if (page === 'results') setTimeout(() => { initResultCharts(); }, 50);
+  if (page === 'library') setTimeout(() => { initLibraryChart(); }, 50);
+  if (page === 'fees') setTimeout(() => { initFeeChart(); }, 50);
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
+function switchTab(btn, tabId) {
+  const container = btn.closest('.page-view');
+  container.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  container.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+  if (tabId === 'tab-analytics') setTimeout(initResultCharts, 50);
+}
+
+function showLogout() {
+  if (confirm('Sign out from EduCore SMS?')) {
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('login-screen').classList.remove('hidden');
+  }
+}
+
+// ─── ATTENDANCE GRID ───
+function buildAttGrid() {
+  const grid = document.getElementById('att-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const days = 26; const states = ['present','present','present','present','absent','holiday'];
+  for (let i = 1; i <= 28; i++) {
+    const d = document.createElement('div');
+    d.className = 'att-day';
+    if (i > days) { d.className += ' future'; d.textContent = i; }
+    else { const s = states[Math.floor(Math.random()*states.length)] || 'present'; d.className += ' ' + s; d.textContent = i; }
+    grid.appendChild(d);
+  }
+}
+
+// ─── CHARTS ───
+let chartInstances = {};
+function destroyChart(id) { if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; } }
+
+function initCharts() {
+  buildAttGrid();
+  // Revenue vs Expense
+  destroyChart('revenueChart');
+  chartInstances.revenueChart = new Chart(document.getElementById('revenueChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb'],
+      datasets: [
+        { label: 'Revenue (₹L)', data: [42,38,45,40,36,48,52,46,44,39,38], backgroundColor: '#2563EB', borderRadius: 6, borderSkipped: false },
+        { label: 'Expense (₹L)', data: [30,28,32,35,29,33,38,31,30,28,31], backgroundColor: '#E2E8F0', borderRadius: 6, borderSkipped: false },
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:true, plugins: { legend: { position:'top' } }, scales: { y: { beginAtZero:true, grid: { color:'#F1F5F9' } }, x: { grid: { display:false } } } }
+  });
+  // Class Strength Donut
+  destroyChart('classChart');
+  chartInstances.classChart = new Chart(document.getElementById('classChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['I–V (Primary)','VI–VIII (Middle)','IX–X (Secondary)','XI–XII (Senior)'],
+      datasets: [{ data: [620, 480, 390, 357], backgroundColor: ['#2563EB','#16A34A','#F59E0B','#7C3AED'], borderWidth: 0, hoverOffset: 8 }]
+    },
+    options: { responsive:true, maintainAspectRatio:true, plugins: { legend: { position:'bottom' } }, cutout:'70%' }
+  });
+  // Admissions
+  destroyChart('admissionChart');
+  chartInstances.admissionChart = new Chart(document.getElementById('admissionChart'), {
+    type: 'line',
+    data: {
+      labels: ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb'],
+      datasets: [{ label: 'New Admissions', data: [12,8,45,32,18,5,3,2,6,8,11], borderColor:'#2563EB', backgroundColor:'rgba(37,99,235,0.08)', tension:0.4, fill:true, pointBackgroundColor:'#2563EB', pointRadius:4 }]
+    },
+    options: { responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'top' } }, scales: { y: { beginAtZero:true, grid: { color:'#F1F5F9' } }, x: { grid: { display:false } } } }
+  });
+}
+
+function initFeeChart() {
+  destroyChart('feeChart');
+  const el = document.getElementById('feeChart');
+  if (!el) return;
+  chartInstances.feeChart = new Chart(el, {
+    type: 'bar',
+    data: {
+      labels: ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb'],
+      datasets: [
+        { label: 'Collected (₹L)', data: [42,35,38,40,32,45,48,41,39,36,38], backgroundColor: '#16A34A', borderRadius: 5 },
+        { label: 'Pending (₹L)', data: [8,12,10,7,15,6,4,9,10,13,13], backgroundColor: '#DC2626', borderRadius: 5 },
+      ]
+    },
+    options: { responsive:true, maintainAspectRatio:true, plugins:{ legend:{ position:'top' } }, scales: { y: { beginAtZero:true, grid:{ color:'#F1F5F9' } }, x: { grid:{ display:false } } } }
+  });
+}
+
+function initResultCharts() {
+  destroyChart('performanceChart');
+  destroyChart('gradeChart');
+  const p = document.getElementById('performanceChart');
+  const g = document.getElementById('gradeChart');
+  if (!p || !g) return;
+  chartInstances.performanceChart = new Chart(p, {
+    type: 'radar',
+    data: {
+      labels: ['Mathematics','Physics','Chemistry','English','Biology','Computer Sc'],
+      datasets: [{ label: 'Class Average', data: [82,78,75,88,80,90], borderColor:'#2563EB', backgroundColor:'rgba(37,99,235,0.1)', pointBackgroundColor:'#2563EB' }]
+    },
+    options: { responsive:true, maintainAspectRatio:true, plugins: { legend: { position:'top' } }, scales: { r: { beginAtZero:true, max:100 } } }
+  });
+  chartInstances.gradeChart = new Chart(g, {
+    type: 'pie',
+    data: {
+      labels: ['A1 (91-100)','A2 (81-90)','B1 (71-80)','B2 (61-70)','C1 & below'],
+      datasets: [{ data: [18,28,22,15,7], backgroundColor: ['#16A34A','#2563EB','#7C3AED','#F59E0B','#DC2626'], borderWidth: 0 }]
+    },
+    options: { responsive:true, maintainAspectRatio:true, plugins: { legend: { position:'bottom' } } }
+  });
+}
+
+function initLibraryChart() {
+  destroyChart('libraryChart');
+  const el = document.getElementById('libraryChart');
+  if (!el) return;
+  chartInstances.libraryChart = new Chart(el, {
+    type: 'doughnut',
+    data: {
+      labels: ['Science','Literature','History','Math','Reference','Novels','Magazines'],
+      datasets: [{ data: [1840,1620,980,1200,1540,780,460], backgroundColor: ['#2563EB','#16A34A','#F59E0B','#7C3AED','#0891B2','#DC2626','#94A3B8'], borderWidth: 0 }]
+    },
+    options: { responsive:true, maintainAspectRatio:true, plugins: { legend: { position:'bottom' } }, cutout:'60%' }
+  });
+}
+</script>
+</body>
+</html>
