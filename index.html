@@ -95,43 +95,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-prim
 .sidebar-user-role{font-size:11px;color:var(--text-muted)}
 .role-badge-pill{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-top:2px;width:fit-content}
 
-/* ── LOGOUT BUTTON in sidebar ── */
-.sidebar-logout-btn{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius);cursor:pointer;transition:var(--t);color:var(--danger);font-weight:600;font-size:13px;margin-top:4px;border:1.5px solid transparent;white-space:nowrap;overflow:hidden;}
-.sidebar-logout-btn:hover{background:var(--danger-light);border-color:#FECACA;}
-.sidebar-logout-btn .lo-icon{font-size:16px;min-width:20px;text-align:center;flex-shrink:0;}
-.sidebar-logout-btn span.lo-label{white-space:nowrap;overflow:hidden;}
-.sidebar.collapsed .sidebar-logout-btn span.lo-label{opacity:0;width:0;}
-
-/* ── USER DROPDOWN ── */
-.user-dropdown-wrap{position:relative;}
-.user-dropdown{position:absolute;top:calc(100% + 8px);right:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);min-width:220px;z-index:500;overflow:hidden;animation:dropIn .15s ease;display:none;}
-.user-dropdown.open{display:block;}
-@keyframes dropIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-.user-dropdown-header{padding:14px 16px;border-bottom:1px solid var(--border);background:var(--surface2);}
-.user-dropdown-name{font-weight:700;font-size:14px;color:var(--text-primary);}
-.user-dropdown-role{font-size:12px;color:var(--text-muted);margin-top:2px;}
-.user-dropdown-item{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:13.5px;color:var(--text-secondary);cursor:pointer;transition:var(--t);}
-.user-dropdown-item:hover{background:var(--surface2);color:var(--text-primary);}
-.user-dropdown-item.danger{color:var(--danger);}
-.user-dropdown-item.danger:hover{background:var(--danger-light);}
-.user-dropdown-divider{height:1px;background:var(--border);margin:4px 0;}
-
-/* ── LOGOUT MODAL ── */
-#logout-modal{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:2000;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .25s;}
-#logout-modal.open{opacity:1;pointer-events:all;}
-.logout-modal-card{background:var(--surface);border-radius:20px;padding:0;width:380px;box-shadow:var(--shadow-lg);transform:scale(.94);transition:transform .25s;overflow:hidden;}
-#logout-modal.open .logout-modal-card{transform:scale(1);}
-.logout-modal-top{background:linear-gradient(135deg,#FEF2F2,#FFF5F5);padding:32px 32px 24px;text-align:center;border-bottom:1px solid #FECACA;}
-.logout-modal-icon{width:64px;height:64px;background:var(--danger-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;border:3px solid #FECACA;}
-.logout-modal-title{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:800;color:var(--text-primary);margin-bottom:6px;}
-.logout-modal-sub{font-size:13.5px;color:var(--text-secondary);}
-.logout-modal-user{display:flex;align-items:center;gap:10px;margin-top:16px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;}
-.logout-modal-body{padding:20px 24px;display:flex;gap:10px;}
-.logout-cancel-btn{flex:1;padding:11px;border-radius:var(--radius);border:1.5px solid var(--border);background:var(--surface);font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;color:var(--text-secondary);transition:var(--t);}
-.logout-cancel-btn:hover{border-color:var(--border2);background:var(--surface2);}
-.logout-confirm-btn{flex:1;padding:11px;border-radius:var(--radius);border:none;background:var(--danger);color:white;font-size:14px;font-weight:700;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;box-shadow:0 4px 12px rgba(220,38,38,.3);transition:var(--t);}
-.logout-confirm-btn:hover{background:#B91C1C;transform:translateY(-1px);box-shadow:0 6px 16px rgba(220,38,38,.4);}
-
 /* ── MAIN ── */
 .main-wrapper{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .header{height:var(--header-height);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:14px;flex-shrink:0;box-shadow:0 1px 4px rgba(0,0,0,.05)}
@@ -338,16 +301,12 @@ tbody tr:last-child td{border-bottom:none}
     </div>
     <nav class="sidebar-nav" id="sidebar-nav"></nav>
     <div class="sidebar-footer">
-      <div class="sidebar-user" style="cursor:default;">
+      <div class="sidebar-user" onclick="doLogout()">
         <div class="user-avatar" id="user-avatar" style="width:36px;height:36px;font-size:14px;"></div>
         <div class="sidebar-user-info" style="overflow:hidden;min-width:0;">
           <div class="sidebar-user-name" id="user-name"></div>
           <div class="sidebar-user-role" id="user-role-label"></div>
         </div>
-      </div>
-      <div class="sidebar-logout-btn" onclick="showLogoutModal()">
-        <span class="lo-icon">🚪</span>
-        <span class="lo-label">Sign Out</span>
       </div>
     </div>
   </aside>
@@ -364,20 +323,7 @@ tbody tr:last-child td{border-bottom:none}
         <div class="header-btn">🔔<span class="notif-dot"></span></div>
         <div class="header-btn">📅</div>
         <div class="role-tag" id="header-role-tag"></div>
-        <div class="user-dropdown-wrap">
-          <div class="user-avatar" id="header-avatar" style="width:36px;height:36px;font-size:13px;cursor:pointer;" onclick="toggleDropdown()" title="Account options"></div>
-          <div class="user-dropdown" id="user-dropdown">
-            <div class="user-dropdown-header">
-              <div class="user-dropdown-name" id="dd-name">Admin User</div>
-              <div class="user-dropdown-role" id="dd-role">School Admin</div>
-            </div>
-            <div class="user-dropdown-item">👤 My Profile</div>
-            <div class="user-dropdown-item">⚙️ Settings</div>
-            <div class="user-dropdown-item">🔒 Change Password</div>
-            <div class="user-dropdown-divider"></div>
-            <div class="user-dropdown-item danger" onclick="showLogoutModal()">🚪 Sign Out</div>
-          </div>
-        </div>
+        <div class="user-avatar" id="header-avatar" style="width:36px;height:36px;font-size:13px;cursor:pointer;"></div>
       </div>
     </header>
 
@@ -491,12 +437,9 @@ function setupUser(r){
   document.getElementById('user-avatar').style.background=r.color;
   document.getElementById('header-avatar').textContent=r.initial;
   document.getElementById('header-avatar').style.background=r.color;
-  const uname=getUserName(currentRole);
-  document.getElementById('user-name').textContent=uname;
+  document.getElementById('user-name').textContent=getUserName(currentRole);
   document.getElementById('user-role-label').textContent=r.label;
   document.getElementById('sidebar-school').textContent=r.school;
-  document.getElementById('dd-name').textContent=uname;
-  document.getElementById('dd-role').textContent=r.label;
   const tag=document.getElementById('header-role-tag');
   const colors={admin:'primary',principal:'purple',teacher:'success',student:'warning',parent:'cyan',accountant:'orange'};
   const c=colors[currentRole]||'primary';
@@ -550,53 +493,7 @@ function navigate(page){
 }
 
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('collapsed');}
-function showLogoutModal(){
-  // Populate modal with current user info
-  const avatar = document.getElementById('user-avatar');
-  const ma = document.getElementById('modal-avatar');
-  ma.textContent = avatar.textContent;
-  ma.style.background = avatar.style.background;
-  document.getElementById('modal-name').textContent = document.getElementById('user-name').textContent;
-  document.getElementById('modal-role').textContent = document.getElementById('user-role-label').textContent;
-  document.getElementById('logout-modal').classList.add('open');
-  // Close dropdown if open
-  document.getElementById('user-dropdown').classList.remove('open');
-}
-function hideLogoutModal(){
-  document.getElementById('logout-modal').classList.remove('open');
-}
-function confirmLogout(){
-  const modal = document.getElementById('logout-modal');
-  modal.classList.remove('open');
-  setTimeout(()=>{
-    document.getElementById('app').style.display='none';
-    document.getElementById('mobile-nav').style.display='none';
-    document.getElementById('login-screen').classList.remove('hidden');
-    // Reset role selection to admin
-    document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('active'));
-    document.querySelector('.role-btn[data-role="admin"]').classList.add('active');
-    currentRole='admin';
-    // Destroy all charts
-    Object.values(chartReg).forEach(c=>{try{c.destroy();}catch(e){}});
-    Object.keys(chartReg).forEach(k=>delete chartReg[k]);
-  }, 200);
-}
-function toggleDropdown(){
-  const dd = document.getElementById('user-dropdown');
-  dd.classList.toggle('open');
-}
-// Close dropdown on outside click
-document.addEventListener('click', function(e){
-  const wrap = document.querySelector('.user-dropdown-wrap');
-  if(wrap && !wrap.contains(e.target)){
-    document.getElementById('user-dropdown').classList.remove('open');
-  }
-});
-// Close modal on backdrop click
-document.getElementById('logout-modal').addEventListener('click', function(e){
-  if(e.target === this) hideLogoutModal();
-});
-function doLogout(){ showLogoutModal(); }
+function doLogout(){if(confirm('Sign out?')){document.getElementById('app').style.display='none';document.getElementById('mobile-nav').style.display='none';document.getElementById('login-screen').classList.remove('hidden');}}
 function switchTab(btn,tabId){const cont=btn.closest('.page-view');cont.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));cont.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.getElementById(tabId).classList.add('active');setTimeout(()=>initPageCharts(currentPage),50);}
 
 function getPageInfo(p){
@@ -1297,28 +1194,5 @@ function getAccountantViews(){return[
 </div>`,}
 ];}
 </script>
-
-<!-- ══ LOGOUT MODAL ══ -->
-<div id="logout-modal">
-  <div class="logout-modal-card">
-    <div class="logout-modal-top">
-      <div class="logout-modal-icon">🚪</div>
-      <div class="logout-modal-title">Sign Out?</div>
-      <div class="logout-modal-sub">You'll be returned to the login screen.<br>Any unsaved changes will be lost.</div>
-      <div class="logout-modal-user">
-        <div class="user-avatar" id="modal-avatar" style="width:38px;height:38px;font-size:14px;"></div>
-        <div>
-          <div style="font-weight:700;font-size:13px;" id="modal-name">Admin User</div>
-          <div style="font-size:12px;color:var(--text-muted);" id="modal-role">School Admin</div>
-        </div>
-      </div>
-    </div>
-    <div class="logout-modal-body">
-      <button class="logout-cancel-btn" onclick="hideLogoutModal()">Cancel</button>
-      <button class="logout-confirm-btn" onclick="confirmLogout()">Yes, Sign Out</button>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
