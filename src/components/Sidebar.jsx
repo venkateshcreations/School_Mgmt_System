@@ -4,9 +4,6 @@ export default function Sidebar({ role, currentPage, onNavigate, onLogout, colla
   const roleData = ROLES[role];
   const userName = USER_NAMES[role];
 
-  const roleColors = { admin: 'primary', principal: 'purple', teacher: 'success', student: 'warning', parent: 'cyan', accountant: 'orange' };
-  const badgeClass = roleColors[role] || 'primary';
-
   return (
     <aside className={`sidebar${collapsed ? ' collapsed' : ''}`} id="sidebar">
       <div className="sidebar-header">

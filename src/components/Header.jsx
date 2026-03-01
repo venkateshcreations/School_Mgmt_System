@@ -1,4 +1,4 @@
-import { ROLES, USER_NAMES, PAGE_INFO } from '../data/roles';
+import { ROLES, PAGE_INFO } from '../data/roles';
 
 export default function Header({ role, currentPage, onToggleSidebar, onLogout }) {
   const roleData = ROLES[role];
